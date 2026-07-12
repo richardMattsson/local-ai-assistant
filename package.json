@@ -1,0 +1,14 @@
+{
+  "name": "local-ai-assistant",
+  "version": "1.0.0",
+  "description": "A local AI assistant for software developers.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
