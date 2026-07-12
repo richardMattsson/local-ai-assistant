@@ -1,6 +1,10 @@
-import express, { Request, Response } from "express";
+import express from "express";
+import type { Request, Response } from "express";
+import { chat } from "./services/lmStudioService.ts";
 
 const server = express();
+
+const LLM = "qwen/qwen3-vl-8b";
 
 const port = 3001;
 
@@ -10,11 +14,12 @@ server.get("/", (_req, res) => {
   res.send("ok");
 });
 
-server.post("/api/chat", (req: Request, res: Response) => {
+server.post("/api/chat", async (req: Request, res: Response) => {
   const { message } = req.body;
-  console.log(message);
 
-  res.status(200).json({ reply: "Hello from backend" });
+  const answer = await chat(LLM, [{ role: "user", content: message }]);
+
+  res.status(200).json({ reply: answer });
 });
 
 server.listen(port, () => {
