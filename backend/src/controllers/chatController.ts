@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { chatService } from "../services/ChatService.ts";
 
-export const confirmMessage = (_req: Request, res: Response) => {
+export const confirmConnection = (_req: Request, res: Response) => {
   res.status(200).json({ message: "ok" });
 };
 

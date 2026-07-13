@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { confirmMessage, sendMessage } from "../controllers/chatController.ts";
+import {
+  confirmConnection,
+  sendMessage,
+} from "../controllers/chatController.ts";
 
 const router = Router();
 
-router.get("/", confirmMessage);
+router.get("/", confirmConnection);
 router.post("/chat", sendMessage);
 
 export default router;

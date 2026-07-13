@@ -9,10 +9,6 @@ app.use(express.json());
 
 app.use("/api", chatRoutes);
 
-app.get("/", (_req, res) => {
-  res.send("ok");
-});
-
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
