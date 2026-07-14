@@ -1,21 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import { sendMessage } from "./chatService";
-import type { ChatMessage, Role } from "../../../../shared/types/chat";
+
+type Role = "user" | "assistant";
+type ChatMessage = { id: string; role: Role; content: string };
 
 function Chat() {
-  const [input, setInput] = useState("");
+  const [input, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-
-  function addMessage(role: Omit<Role, "system">, content: string) {
-    setMessages((prev) => [...prev, { id: uuidv4(), role, content }]);
-  }
 
   async function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,31 +18,21 @@ function Chat() {
       return;
     }
 
-    const userMessage = {
-      id: uuidv4(),
-      role: "user",
-      content: input,
-    };
+    function _setMessages(role: Role, content: string) {
+      setMessages((prev) => [...prev, { id: uuidv4(), role, content }]);
+    }
 
-    const updatedMessages = [...messages, userMessage];
+    _setMessages("user", input);
 
-    setMessages(updatedMessages);
+    setMessage("");
 
-    setInput("");
     setLoading(true);
 
     try {
-      const reply = await sendMessage(
-        updatedMessages.map((message) => ({
-          role: message.role,
-          content: message.content,
-        })),
-      );
-      addMessage("assistant", reply);
+      const reply = await sendMessage(input);
+      _setMessages("assistant", reply);
     } catch (error) {
-      if (error instanceof Error) {
-        addMessage("assistant", error.message);
-      }
+      _setMessages("assistant", "Response " + error);
     } finally {
       setLoading(false);
     }
@@ -56,63 +40,30 @@ function Chat() {
 
   return (
     <>
-      <div
-        style={{
-          margin: "50px",
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "end",
-        }}
-      >
-        {messages.length > 0 && (
-          <ul
-            style={{ paddingLeft: 0, display: "flex", flexDirection: "column" }}
-          >
-            {messages.map((message) => (
-              <React.Fragment key={message.id}>
-                <li
-                  style={{
-                    listStyle: "none",
-                    fontWeight: "bold",
-                    padding: "10px",
-                    alignSelf: message.role === "user" ? "start" : "end",
-                  }}
-                >
-                  {message.role.toLocaleUpperCase()}
-                </li>
-                <li
-                  style={{
-                    listStyle: "none",
-                    alignSelf: message.role === "user" ? "start" : "end",
-                    textAlign: "left",
-                    backgroundColor: "#222121",
-                    borderRadius: "5px",
-                    border:
-                      message.role === "user"
-                        ? "1px solid #024b8f"
-                        : "1px solid #830404",
-                    padding: "10px",
-                    width: "80%",
-                  }}
-                >
-                  {message.content}
-                </li>
-              </React.Fragment>
-            ))}
-          </ul>
-        )}
-        {loading && <p style={{ textAlign: "right" }}>Thinking...</p>}
-        <form onSubmit={onSubmit} style={{ display: "flex", gap: "10px" }}>
-          <input
-            style={{ flexGrow: 1, padding: "5px" }}
-            type="text"
-            onChange={(event) => setInput(event.target.value)}
-            value={input}
-          />
-          <input style={{ padding: "5px" }} type="submit" value="Send" />
-        </form>
-      </div>
+      <h1>Local AI Assistant</h1>
+
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          onChange={(event) => setMessage(event.target.value)}
+          value={input}
+        />
+        <input type="submit" value="Send" />
+      </form>
+      {messages.length < 1 && <p>(No messages yet)</p>}
+      {messages.length > 0 && (
+        <ul>
+          {messages.map((message) => (
+            <React.Fragment key={message.id}>
+              <li style={{ listStyle: "none", fontWeight: "bold" }}>
+                {message.role}:
+              </li>
+              <li style={{ listStyle: "none" }}>{message.content}</li>
+            </React.Fragment>
+          ))}
+        </ul>
+      )}
+      {loading && <p>Loading answer...</p>}
     </>
   );
 }
