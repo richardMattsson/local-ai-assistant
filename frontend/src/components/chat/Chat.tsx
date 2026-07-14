@@ -79,7 +79,7 @@ function Chat() {
                     alignSelf: message.role === "user" ? "start" : "end",
                   }}
                 >
-                  {message.role}:
+                  {message.role.toLocaleUpperCase()}
                 </li>
                 <li
                   style={{
