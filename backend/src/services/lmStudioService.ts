@@ -1,4 +1,4 @@
-import type { LlmMessage } from "../types/chat.ts";
+import type { LlmMessage } from "../../../shared/types/chat.ts";
 
 export async function sendToLlm(model: string, messages: LlmMessage[]) {
   const response = await fetch("http://localhost:1234/v1/chat/completions", {
@@ -12,5 +12,6 @@ export async function sendToLlm(model: string, messages: LlmMessage[]) {
     }),
   });
   const json = await response.json();
+
   return json.choices[0].message.content;
 }

@@ -2,7 +2,12 @@ import "./App.css";
 import Chat from "./components/Chat/Chat";
 
 function App() {
-  return <Chat />;
+  return (
+    <>
+      <h1>Local AI Assistant</h1>
+      <Chat />
+    </>
+  );
 }
 
 export default App;

@@ -6,16 +6,16 @@ export const confirmConnection = (_req: Request, res: Response) => {
 };
 
 export const sendMessage = async (req: Request, res: Response) => {
-  const { message } = req.body;
+  const { messages } = req.body;
 
-  if (!message) {
+  if (!messages) {
     return res.status(400).json({
       error: "Message is required",
     });
   }
 
   try {
-    const reply = await chatService(message);
+    const reply = await chatService(messages);
     res.status(200).json({ reply });
   } catch (error) {
     res.status(500).json({ message: error });
