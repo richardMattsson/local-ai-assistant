@@ -2,7 +2,8 @@ import type { ChatMessage } from "../../../../shared/types/chat";
 
 export const sendMessage = async (
   messages: Omit<ChatMessage, "id">[],
-): Promise<string> => {
+  sendToken: (one: string) => void,
+): Promise<void> => {
   const response = await fetch("http://localhost:3001/api/chat", {
     method: "POST",
     headers: {
@@ -11,13 +12,18 @@ export const sendMessage = async (
     body: JSON.stringify({ messages }),
   });
 
-  if (!response.ok) {
-    throw new Error(
-      "Something went wrong getting a response. Status: " + response.status,
-    );
+  if (!response.body) {
+    throw new Error("Response has no body");
   }
+  const decoder = new TextDecoder();
+  const reader = response.body.getReader();
 
-  const { reply } = await response.json();
-
-  return reply;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    const decodedChunk = decoder.decode(value);
+    sendToken(decodedChunk);
+  }
 };

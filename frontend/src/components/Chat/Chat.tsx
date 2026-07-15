@@ -24,13 +24,19 @@ function Chat() {
       return;
     }
 
-    const userMessage = {
+    const userMessage: ChatMessage = {
       id: uuidv4(),
       role: "user",
       content: input,
     };
 
-    const updatedMessages = [...messages, userMessage];
+    const assistantMessage: ChatMessage = {
+      id: uuidv4(),
+      role: "assistant",
+      content: "",
+    };
+
+    const updatedMessages = [...messages, userMessage, assistantMessage];
 
     setMessages(updatedMessages);
 
@@ -38,13 +44,24 @@ function Chat() {
     setLoading(true);
 
     try {
-      const reply = await sendMessage(
+      await sendMessage(
         updatedMessages.map((message) => ({
           role: message.role,
           content: message.content,
         })),
+        (token) => {
+          setMessages((prev) => {
+            const newArray = prev.slice(0, -1);
+            const lastMessage = prev[prev.length - 1];
+            newArray.push({
+              id: lastMessage.id,
+              role: lastMessage.role,
+              content: lastMessage.content + token,
+            });
+            return newArray;
+          });
+        },
       );
-      addMessage("assistant", reply);
     } catch (error) {
       if (error instanceof Error) {
         addMessage("assistant", error.message);
@@ -94,6 +111,7 @@ function Chat() {
                         : "1px solid #830404",
                     padding: "10px",
                     width: "80%",
+                    minHeight: "20px",
                   }}
                 >
                   {message.content}
